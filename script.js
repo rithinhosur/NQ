@@ -1,61 +1,68 @@
-function isSafe(board, row, col, N) {
+let steps = []; // Array to hold the steps of queen placements
+
+function solveNQueens() {
+    const n = parseInt(document.getElementById('n').value);
+    const grid = document.getElementById('puzzleGrid');
+    const stepsDiv = document.getElementById('steps'); // Div to display the steps
+    grid.innerHTML = ''; // Clear previous grid
+    stepsDiv.innerHTML = ''; // Clear previous steps
+    grid.style.gridTemplateColumns = `repeat(${n}, 60px)`;
+
+    const board = Array.from({ length: n }, () => Array(n).fill(0));
+    steps = []; // Reset steps
+
+    if (placeQueens(board, 0, n)) {
+        renderBoard(board, n);
+        displaySteps(steps); // Display the recorded steps
+    } else {
+        alert('No solution exists!');
+    }
+}
+
+function placeQueens(board, row, n) {
+    if (row === n) return true; // All queens are placed
+
+    for (let col = 0; col < n; col++) {
+        if (isSafe(board, row, col, n)) {
+            board[row][col] = 1; // Place queen
+            steps.push([row + 1, col + 1]); // Record step (1-based index)
+            if (placeQueens(board, row + 1, n)) return true; // Recur
+            board[row][col] = 0; // Backtrack
+            steps.pop(); // Remove last step if backtracking
+        }
+    }
+    return false;
+}
+
+function isSafe(board, row, col, n) {
     for (let i = 0; i < row; i++) {
-        if (board[i][col]) return false;
-    }
-    for (let i = row, j = col; i >= 0 && j >= 0; i--, j--) {
-        if (board[i][j]) return false;
-    }
-    for (let i = row, j = col; i >= 0 && j < N; i--, j++) {
-        if (board[i][j]) return false;
+        if (board[i][col] === 1) return false; // Check column
+        if (col - (row - i) >= 0 && board[i][col - (row - i)] === 1) return false; // Check left diagonal
+        if (col + (row - i) < n && board[i][col + (row - i)] === 1) return false; // Check right diagonal
     }
     return true;
 }
 
-function solveNQueensUtil(board, row, solutions, N) {
-    if (row === N) {
-        solutions.push(board.map(r => r.slice()));
-        return;
-    }
-    for (let col = 0; col < N; col++) {
-        if (isSafe(board, row, col, N)) {
-            board[row][col] = true;
-            solveNQueensUtil(board, row + 1, solutions, N);
-            board[row][col] = false; // Backtrack
+function renderBoard(board, n) {
+    for (let row = 0; row < n; row++) {
+        for (let col = 0; col < n; col++) {
+            const cell = document.createElement('div');
+            cell.className = (row + col) % 2 === 0 ? 'cell white' : 'cell black';
+            if (board[row][col] === 1) {
+                cell.innerHTML = '♛'; // Queen symbol
+                cell.classList.add('queen');
+            }
+            document.getElementById('puzzleGrid').appendChild(cell);
         }
     }
 }
 
-function solveNQueens() {
-    const N = parseInt(document.getElementById('n').value);
-    const solutions = [];
-    const board = Array.from({ length: N }, () => Array(N).fill(false));
-    solveNQueensUtil(board, 0, solutions, N);
-    displaySolutions(solutions, N);
-}
-
-function displaySolutions(solutions, N) {
-    const solutionsDiv = document.getElementById('solutions');
-    solutionsDiv.innerHTML = '';
-    solutions.forEach((solution, index) => {
-        const solutionDiv = document.createElement('div');
-        solutionDiv.classList.add('solution');
-        solutionDiv.innerHTML = `<h3>Solution ${index + 1}:</h3>`;
-        const boardDiv = document.createElement('div');
-        boardDiv.classList.add('board');
-        
-        solution.forEach(row => {
-            row.forEach(cell => {
-                const cellDiv = document.createElement('div');
-                cellDiv.classList.add('cell');
-                if (cell) {
-                    const queenDiv = document.createElement('div');
-                    queenDiv.classList.add('queen');
-                    cellDiv.appendChild(queenDiv);
-                }
-                boardDiv.appendChild(cellDiv);
-            });
-        });
-        solutionDiv.appendChild(boardDiv);
-        solutionsDiv.appendChild(solutionDiv);
+function displaySteps(steps) {
+    const stepsDiv = document.getElementById('steps');
+    steps.forEach((step, index) => {
+        const [row, col] = step;
+        stepsDiv.innerHTML += `Step ${index + 1}: Placed queen at (${row}, ${col})<br>`;
     });
 }
+
+document.getElementById('solveButton').addEventListener('click', solveNQueens);
