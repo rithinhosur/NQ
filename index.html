@@ -7,14 +7,13 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-<h1>N-Queens Solver</h1>
-<label for="n">Enter number of queens (N): </label>
-<input type="number" id="n" min="1" max="8" value="4">
-<button onclick="solveNQueens()">Solve</button>
-
-<div id="solutions"></div>
-
-<script src="script.js"></script>
+    <div class="container">
+        <h1>N-Queens Problem Solver</h1>
+        <input type="number" id="n" placeholder="Enter number of queens (N)" min="4" max="10">
+        <button id="solveButton">Solve</button>
+        <div id="puzzleGrid" class="grid"></div>
+        <div id="steps" class="steps"></div>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
